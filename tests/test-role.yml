@@ -1,0 +1,72 @@
+# Just in this test directory run 'ansible-playbook test-role.yml -vv' to test the role.
+
+# It should spawn a docker container and apply the role in that successfully.
+# After that you have the chance to get in the container and check before it
+# shuts the container down.
+
+- name: Bring up docker container
+  hosts: localhost
+  gather_facts: false
+  vars:
+    ct_name: test_role_xvt-dotnetcore-dev
+    ct_image: "ubuntu:16.04"
+    ct_command: "sleep infinity"
+    work_dir: "/workdir"
+
+  tags:
+    - test
+    - launch_container
+
+  tasks:
+    - docker_container:
+        name: "{{ ct_name }}"
+        hostname: "{{ ct_name }}"
+        image: "{{ ct_image }}"
+        volumes: ".:{{ work_dir }}"
+        # this optin always recreate ct - is it a bug?
+        # working_dir: "/workdir"
+        command: "{{ ct_command }}"
+        state: started
+        recreate: no
+    - add_host:
+        name: "{{ ct_name }}"
+
+- hosts: test_role_xvt-dotnetcore-dev
+  remote_user: root
+  connection: docker
+  gather_facts: no
+  tags:
+    - test
+    - install_base
+  tasks:
+    - raw: "apt update && apt -y install python unzip zip bzip2 curl apt-transport-https"
+
+- hosts: test_role_xvt-dotnetcore-dev
+  remote_user: root
+  connection: docker
+  tags:
+    - test
+    - test_role
+  vars:
+    work_dir: "/workdir"
+
+  roles:
+    - name: xvt-dotnetcore-dev
+
+- name: Shutdown docker container
+  hosts: localhost
+  gather_facts: false
+  vars:
+    ct_name: test_role_xvt-dotnetcore-dev
+  tags:
+    - destroy_container
+
+  tasks:
+    - pause:
+        prompt: "Shuttdown container now? You can exec in the container to check now and answer later on. yes/no"
+      register: confirmation
+
+    - docker_container:
+        name: "{{ ct_name }}"
+        state: absent
+      when: confirmation.user_input == 'yes'
