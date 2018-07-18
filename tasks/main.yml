@@ -1,19 +1,14 @@
----
-# tasks file for xvt-dotnetcore-dev
-- name: Add apt-key for Microsoft signature key
-  apt_key:
-    url: https://packages.microsoft.com/keys/microsoft.asc
-    state: present
-
-- name: Install microsoft repo
-  apt_repository:
-    repo: 'deb [arch=amd64] https://packages.microsoft.com/repos/microsoft-ubuntu-{{ ubuntu_version_codename }}-prod {{ ubuntu_version_codename }} main'
+- name: Install packages-microsoft-prod.deb to setup lates repository
+  apt:
+    deb: "https://packages.microsoft.com/config/ubuntu/{{ ubuntu_version[ubuntu_version_codename] }}/packages-microsoft-prod.deb"
     state: present
 
 - name: Install dotnet
   apt:
     name: "dotnet-sdk-{{ dotnet_version }}"
     state: present
+    update_cache: yes
+    cache_valid_time: 0
 
 - name: Add apt-key for mono project
   apt_key:
