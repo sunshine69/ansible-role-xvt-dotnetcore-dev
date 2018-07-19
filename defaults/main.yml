@@ -2,6 +2,7 @@
 # defaults file for xvt-dotnetcore-dev
 dotnet_version: "2.1"
 
-ubuntu_version_codename: xenial
+ubuntu_version_codename: bionic
 ubuntu_version:
   xenial: "16.04"
+  bionic: "18.04"
