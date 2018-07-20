@@ -1,6 +1,6 @@
 - name: Install packages-microsoft-prod.deb to setup lates repository
   apt:
-    deb: "https://packages.microsoft.com/config/ubuntu/{{ ubuntu_version[ubuntu_version_codename] }}/packages-microsoft-prod.deb"
+    deb: "https://packages.microsoft.com/config/ubuntu/{{ ubuntu_version[ansible_distribution_release] }}/packages-microsoft-prod.deb"
     state: present
 
 - name: Install dotnet
@@ -17,7 +17,7 @@
 
 - name: Install mono repo
   apt_repository:
-    repo: 'deb http://download.mono-project.com/repo/ubuntu {{ ubuntu_version_codename }} main'
+    repo: 'deb http://download.mono-project.com/repo/ubuntu {{ ansible_distribution_release }} main'
     state: present
 
 - name: Install mono
